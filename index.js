@@ -5,31 +5,41 @@ dns.setDefaultResultOrder("ipv4first");
 require("dotenv").config();
 
 const express = require("express");
-
-// Render Web Server
-const app = express();
-
-app.get("/", (req, res) => {
-    res.send("🐉 WesterosBot Online");
-});
-
-app.listen(process.env.PORT || 3000, () => {
-    console.log("🌐 Web Server Started");
-});
-
-
 const mongoose = require("mongoose");
 
-const { 
-    Client, 
-    GatewayIntentBits, 
-    Collection 
+const {
+    Client,
+    GatewayIntentBits,
+    Collection
 } = require("discord.js");
 
 const fs = require("fs");
 
 
-// Discord Client
+
+// 🌐 Render Web Server
+
+const app = express();
+
+app.get("/", (req, res) => {
+
+    res.send("🐉 WesterosBot Online");
+
+});
+
+
+app.listen(process.env.PORT || 3000, () => {
+
+    console.log("🌐 Web Server Started");
+
+});
+
+
+
+
+
+// 🤖 Discord Client
+
 const client = new Client({
 
     intents: [
@@ -40,12 +50,16 @@ const client = new Client({
 
 
 
-// تحميل الأوامر
+
+
+// 📂 Commands
+
 client.commands = new Collection();
 
 
 const commandFiles = fs.readdirSync("./commands")
     .filter(file => file.endsWith(".js"));
+
 
 
 for (const file of commandFiles) {
@@ -67,7 +81,8 @@ for (const file of commandFiles) {
 
         }
 
-    } catch (error) {
+
+    } catch(error) {
 
         console.log(`❌ Error loading ${file}`);
         console.log(error);
@@ -79,41 +94,80 @@ for (const file of commandFiles) {
 
 
 
-// تشغيل Slash Commands
+
+// ⚔️ Slash Commands + Buttons
 
 client.on("interactionCreate", async interaction => {
 
 
-    if (!interaction.isChatInputCommand()) return;
+
+    // =====================
+    // Slash Commands
+    // =====================
+
+    if (interaction.isChatInputCommand()) {
 
 
-    const command = client.commands.get(
-        interaction.commandName
-    );
+        const command = client.commands.get(
+            interaction.commandName
+        );
 
 
-    if (!command) return;
+        if (!command) return;
 
 
-    try {
+
+        try {
 
 
-        await command.execute(interaction);
+            await command.execute(interaction);
 
 
-    } catch (error) {
+
+        } catch(error) {
 
 
-        console.error(error);
+            console.error(error);
 
 
-        if (!interaction.replied) {
+            if(!interaction.replied) {
+
+                await interaction.reply({
+
+                    content:"❌ حدث خطأ أثناء تنفيذ الأمر",
+
+                    ephemeral:true
+
+                });
+
+            }
+
+        }
+
+
+    }
+
+
+
+
+
+    // =====================
+    // 🛒 Shop Buttons
+    // =====================
+
+    if (interaction.isButton()) {
+
+
+
+        if(interaction.customId === "buy_sword") {
 
 
             await interaction.reply({
 
-                content: "❌ حدث خطأ أثناء تنفيذ الأمر",
-                ephemeral: true
+                content:
+                "🗡️ اشتريت **Valyrian Sword** مقابل 500 🪙 Gold",
+
+                ephemeral:true
 
             });
 
@@ -121,7 +175,45 @@ client.on("interactionCreate", async interaction => {
         }
 
 
+
+
+        if(interaction.customId === "buy_dragon") {
+
+
+            await interaction.reply({
+
+                content:
+                "🐉 اشتريت **Dragon Egg** مقابل 1000 🪙 Gold",
+
+                ephemeral:true
+
+            });
+
+
+        }
+
+
+
+
+        if(interaction.customId === "buy_role") {
+
+
+            await interaction.reply({
+
+                content:
+                "👑 حصلت على **Lord Rank** مقابل 5000 🪙 Gold",
+
+                ephemeral:true
+
+            });
+
+
+        }
+
+
+
     }
+
 
 
 });
@@ -131,7 +223,8 @@ client.on("interactionCreate", async interaction => {
 
 
 
-// تشغيل البوت
+
+// 🗄️ MongoDB + Login
 
 async function startBot() {
 
@@ -144,7 +237,7 @@ async function startBot() {
             process.env.MONGO_URI,
 
             {
-                serverSelectionTimeoutMS: 10000
+                serverSelectionTimeoutMS:10000
             }
 
         );
@@ -162,7 +255,7 @@ async function startBot() {
 
 
 
-    } catch (err) {
+    } catch(err) {
 
 
         console.log("❌ Error:");
@@ -177,9 +270,6 @@ async function startBot() {
 
 
 
-
-
-// Discord.js v15
 
 client.once("clientReady", () => {
 
