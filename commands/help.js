@@ -2,8 +2,7 @@ const {
     SlashCommandBuilder,
     EmbedBuilder,
     ActionRowBuilder,
-    ButtonBuilder,
-    ButtonStyle
+    StringSelectMenuBuilder
 } = require("discord.js");
 
 
@@ -27,70 +26,13 @@ const embed = new EmbedBuilder()
 
 .setDescription(
 `
-**⚔️ Welcome Lord ${interaction.user.username}**
+⚔️ Welcome Lord **${interaction.user.username}**
 
-دليل مملكة Westeros
-
-━━━━━━━━━━━━━━
-
-👑 **Kingdom**
-🏰 /choosehouse
-اختيار البيت
-
-🏰 /kingdom
-معلومات المملكة
-
+اختر قسم الأوامر من القائمة 👇
 
 ━━━━━━━━━━━━━━
 
-🪙 **Economy**
-💰 /balance
-عرض الذهب
-
-🎁 /daily
-المكافأة اليومية
-
-⚒️ /work
-العمل وكسب الذهب
-
-
-━━━━━━━━━━━━━━
-
-🐉 **Dragons**
-🥚 /hatch
-فقس البيضة
-
-🐉 /dragon
-معلومات التنين
-
-🍖 /feed-dragon
-إطعام التنين
-
-⚔️ /train-dragon
-تدريب التنين
-
-
-━━━━━━━━━━━━━━
-
-⚔️ **Combat**
-⚔️ /battle
-قتال لورد آخر
-
-
-━━━━━━━━━━━━━━
-
-🎒 **Profile**
-👤 /profile
-بطاقة اللورد
-
-
-━━━━━━━━━━━━━━
-
-🛒 **Shop**
-🛒 /shop-panel
-متجر المملكة
-
-
+👑 Seven Kingdoms
 ❄️ Winter is Coming
 `
 )
@@ -107,37 +49,70 @@ text:"WesterosBot • Seven Kingdoms"
 
 
 
-const buttons = new ActionRowBuilder()
+const menu = new StringSelectMenuBuilder()
 
-.addComponents(
+.setCustomId("help_menu")
 
-new ButtonBuilder()
+.setPlaceholder("📜 اختر قسم الأوامر")
 
-.setCustomId("help_economy")
-
-.setLabel("🪙 Economy")
-
-.setStyle(ButtonStyle.Primary),
+.addOptions([
 
 
-new ButtonBuilder()
+{
+label:"Kingdom",
+description:"🏰 البيوت والمملكة",
+emoji:"🏰",
+value:"kingdom"
+},
 
-.setCustomId("help_dragon")
 
-.setLabel("🐉 Dragons")
+{
+label:"Economy",
+description:"🪙 الذهب والعمل",
+emoji:"🪙",
+value:"economy"
+},
 
-.setStyle(ButtonStyle.Success),
+
+{
+label:"Dragons",
+description:"🐉 نظام التنانين",
+emoji:"🐉",
+value:"dragons"
+},
 
 
-new ButtonBuilder()
+{
+label:"Combat",
+description:"⚔️ القتال والترتيب",
+emoji:"⚔️",
+value:"combat"
+},
 
-.setCustomId("help_battle")
 
-.setLabel("⚔️ Battle")
+{
+label:"Profile",
+description:"👤 بطاقة اللورد",
+emoji:"🎒",
+value:"profile"
+},
 
-.setStyle(ButtonStyle.Danger)
 
-);
+{
+label:"Shop",
+description:"🛒 المتجر",
+emoji:"🛒",
+value:"shop"
+}
+
+
+]);
+
+
+
+const row = new ActionRowBuilder()
+
+.addComponents(menu);
 
 
 
@@ -145,7 +120,7 @@ await interaction.reply({
 
 embeds:[embed],
 
-components:[buttons]
+components:[row]
 
 });
 
