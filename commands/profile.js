@@ -9,75 +9,121 @@ const User = require("../models/User");
 module.exports = {
 
 
-data: new SlashCommandBuilder()
+data:new SlashCommandBuilder()
 
 .setName("profile")
 
-.setDescription("عرض بطاقة اللورد")
-
-.addUserOption(option =>
-    option
-    .setName("user")
-    .setDescription("اختيار لورد آخر")
-    .setRequired(false)
-),
+.setDescription("👑 عرض بطاقة اللورد"),
 
 
 
 async execute(interaction){
 
 
-const target =
+let target =
 interaction.options.getUser("user")
 || interaction.user;
 
 
 
-let user = await User.findOne({
-    userId: target.id
+let user =
+await User.findOne({
+
+userId: target.id
+
 });
 
 
 
 if(!user){
 
-user = await User.create({
 
-    userId: target.id,
+user =
+await User.create({
 
-    username: target.username
+userId:target.id,
+
+username:target.username
 
 });
+
 
 }
 
 
 
-const xpNeed = user.level * 100;
 
 
-const xpBarLength = 10;
+// XP SYSTEM
+
+const maxXP =
+user.level * 100;
 
 
-const filled = Math.floor(
-(user.xp / xpNeed) * xpBarLength
+let xpPercent =
+Math.floor(
+(user.xp / maxXP) * 10
 );
 
 
+
+if(xpPercent > 10)
+xpPercent = 10;
+
+
+
 const xpBar =
-"🟩".repeat(Math.min(filled,10)) +
-"⬛".repeat(Math.max(10-filled,0));
+"🟩".repeat(xpPercent)
++
+"⬜".repeat(10-xpPercent);
 
 
 
 
-let dragonStatus =
+
+// Rank
+
+let rank = "Peasant";
+
+
+if(user.level >=5)
+rank="Knight";
+
+
+if(user.level >=10)
+rank="Lord";
+
+
+if(user.level >=20)
+rank="King";
+
+
+
+
+
+// Combat Power
+
+const power =
+(user.attack || 10)
++
+(user.defense || 5)
++
+(user.dragon?.power || 0);
+
+
+
+
+
+// Dragon
+
+let dragonText =
 "❌ No Dragon";
 
 
-if(user.dragon?.alive){
+if(user.dragon?.name !== "No Dragon"){
 
-dragonStatus =
+
+dragonText =
 `
 🐉 ${user.dragon.name}
 
@@ -86,15 +132,12 @@ ${user.dragon.level}
 
 🔥 Power:
 ${user.dragon.power}
-
-🍖 Hunger:
-${user.dragon.hunger}%
-
-⚡ Energy:
-${user.dragon.energy}%
 `;
 
 }
+
+
+
 
 
 
@@ -113,83 +156,10 @@ target.displayAvatarURL()
 })
 
 
-.setTitle("👑 Westeros Lord Profile")
-
-
-.setDescription(
-
-`
-🏰 **House**
-${user.house}
-
-
-👑 **Rank**
-${user.rank}
-
-
-━━━━━━━━━━━━━━
-
-⭐ **Level**
-${user.level}
-
-
-🔥 **Experience**
-
-${xpBar}
-
-${user.xp}/${xpNeed} XP
-
-
-━━━━━━━━━━━━━━
-
-🪙 **Gold**
-${user.gold} Dragons
-
-
-⚔️ **Combat Power**
-${user.battlePower}
-
-
-🗡️ Attack:
-${user.attack}
-
-
-🛡️ Defense:
-${user.defense}
-
-
-━━━━━━━━━━━━━━
-
-🐉 **Dragon**
-
-${dragonStatus}
-
-
-━━━━━━━━━━━━━━
-
-🏆 **Battle Record**
-
-⚔️ Wins:
-${user.battleWins}
-
-💀 Losses:
-${user.battleLosses}
-
-
-━━━━━━━━━━━━━━
-
-🗡️ Weapon:
-${user.weapon}
-
-
-🛡️ Armor:
-${user.armor}
-
-
-❄️ Winter is Coming
-`
-
+.setTitle(
+"👑 Westeros Lord Profile"
 )
+
 
 
 .setThumbnail(
@@ -197,7 +167,111 @@ target.displayAvatarURL()
 )
 
 
+
 .setColor("#8B0000")
+
+
+
+.setDescription(
+
+`
+🏰 **House**
+
+${user.house}
+
+
+━━━━━━━━━━━━━━
+
+
+👑 **Rank**
+
+${rank}
+
+
+⭐ **Level**
+
+${user.level}
+
+
+
+━━━━━━━━━━━━━━
+
+
+🔥 **Experience**
+
+${xpBar}
+
+${user.xp}/${maxXP} XP
+
+
+━━━━━━━━━━━━━━
+
+
+🪙 **Gold**
+
+${user.gold} Dragons
+
+
+
+⚔️ **Combat Power**
+
+${power}
+
+
+🗡️ Attack:
+${user.attack || 10}
+
+
+🛡️ Defense:
+${user.defense || 5}
+
+
+
+━━━━━━━━━━━━━━
+
+
+🐉 **Dragon**
+
+${dragonText}
+
+
+
+━━━━━━━━━━━━━━
+
+
+🏆 **Battle Record**
+
+
+⚔️ Wins:
+${user.battleWins}
+
+
+💀 Losses:
+${user.battleLosses}
+
+
+
+━━━━━━━━━━━━━━
+
+
+🎒 **Equipment**
+
+
+🗡️ ${user.weapon || "Wooden Sword"}
+
+
+🛡️ ${user.armor || "Leather Armor"}
+
+
+━━━━━━━━━━━━━━
+
+
+❄️ Winter is Coming
+
+`
+
+)
+
 
 
 .setFooter({
@@ -215,6 +289,7 @@ await interaction.reply({
 embeds:[embed]
 
 });
+
 
 
 }

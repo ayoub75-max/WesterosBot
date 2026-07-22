@@ -1,4 +1,4 @@
-const { 
+const {
     SlashCommandBuilder,
     EmbedBuilder
 } = require("discord.js");
@@ -12,12 +12,13 @@ module.exports = {
 data: new SlashCommandBuilder()
 
 .setName("battle")
-.setDescription("⚔️ حارب لورد آخر في ويستروس")
+
+.setDescription("⚔️ حارب لورد آخر في Westeros")
 
 .addUserOption(option =>
     option
     .setName("enemy")
-    .setDescription("اختر خصمك")
+    .setDescription("اختر الخصم")
     .setRequired(true)
 ),
 
@@ -26,211 +27,222 @@ data: new SlashCommandBuilder()
 async execute(interaction){
 
 
-    const enemy = interaction.options.getUser("enemy");
+const enemyUser =
+interaction.options.getUser("enemy");
 
 
 
-    if(enemy.id === interaction.user.id){
+if(enemyUser.id === interaction.user.id){
 
-        return interaction.reply({
-            content:"❌ لا يمكنك محاربة نفسك",
-            ephemeral:true
-        });
+return interaction.reply({
 
-    }
+content:"❌ لا يمكنك قتال نفسك",
 
+ephemeral:true
 
+});
 
-    let player = await User.findOne({
-        userId: interaction.user.id
-    });
+}
 
 
 
-    let opponent = await User.findOne({
-        userId: enemy.id
-    });
 
 
+let player =
+await User.findOne({
 
+userId: interaction.user.id
 
+});
 
-    if(!player){
 
-        player = await User.create({
 
-            userId: interaction.user.id,
-            username: interaction.user.username
+if(!player){
 
-        });
+player =
+await User.create({
 
-    }
+userId:interaction.user.id,
 
+username:interaction.user.username
 
+});
 
+}
 
 
-    if(!opponent){
 
-        opponent = await User.create({
 
-            userId: enemy.id,
-            username: enemy.username
 
-        });
+let enemy =
+await User.findOne({
 
-    }
+userId:enemyUser.id
 
+});
 
 
 
+if(!enemy){
 
+enemy =
+await User.create({
 
-    // ⚔️ حساب القوة
+userId:enemyUser.id,
 
-    const playerPower =
+username:enemyUser.username
 
-        (player.level * 10) +
+});
 
-        player.dragon.power +
+}
 
-        Math.floor(Math.random() * 50);
 
 
 
 
-    const enemyPower =
 
-        (opponent.level * 10) +
+// حساب القوة
 
-        opponent.dragon.power +
+const playerPower =
 
-        Math.floor(Math.random() * 50);
+(player.level * 10)
 
++
 
+(player.attack || 10)
 
++
 
+(player.defense || 5)
 
++
 
-    let winner;
-    let loser;
+(player.dragon?.power || 0);
 
-    let winnerUser;
-    let loserUser;
 
 
 
 
+const enemyPower =
 
-    if(playerPower >= enemyPower){
+(enemy.level * 10)
 
++
 
-        winner = player;
-        loser = opponent;
+(enemy.attack || 10)
 
-        winnerUser = interaction.user;
-        loserUser = enemy;
++
 
+(enemy.defense || 5)
 
++
 
-    }else{
+(enemy.dragon?.power || 0);
 
 
-        winner = opponent;
-        loser = player;
 
-        winnerUser = enemy;
-        loserUser = interaction.user;
 
 
-    }
 
 
+// فرصة الفوز
 
+const chance =
+playerPower /
+(playerPower + enemyPower);
 
 
-    // 👑 جوائز الفائز
 
-    winner.gold += 150;
-    winner.xp += 30;
-    winner.reputation += 5;
+const winner =
+Math.random() < chance
+? player
+: enemy;
 
 
 
+const loser =
+winner === player
+? enemy
+: player;
 
 
-    // 💀 خسائر الخاسر
 
-    loser.gold = Math.max(0, loser.gold - 100);
+// المكافآت
 
-    loser.xp = Math.max(0, loser.xp - 10);
+winner.gold += 150;
+winner.xp += 30;
+winner.reputation += 5;
+winner.battleWins++;
 
-    loser.reputation = Math.max(0, loser.reputation - 2);
 
 
+loser.gold =
+Math.max(0, loser.gold - 100);
 
+loser.xp =
+Math.max(0, loser.xp - 10);
 
+loser.reputation =
+Math.max(0, loser.reputation - 2);
 
-    await winner.save();
+loser.battleLosses++;
 
-    await loser.save();
 
 
 
 
+await winner.save();
 
+await loser.save();
 
 
-    const embed = new EmbedBuilder()
 
-    .setColor("#8B0000")
 
-    .setTitle("⚔️ Battle of Westeros")
 
-    .setDescription(
+
+
+const embed =
+new EmbedBuilder()
+
+.setTitle(
+"⚔️ WESTEROS BATTLE"
+)
+
+.setDescription(
 `
-🏰 **${interaction.user}**
-🔥 Power: **${playerPower}**
-
-⚔️ VS ⚔️
-
-🐉 **${enemy}**
-🔥 Power: **${enemyPower}**
+🔥 **${interaction.user.username}**
+⚔️ Power: ${playerPower}
 
 
-👑 **Winner**
-${winnerUser}
+        ⚔️ VS ⚔️
 
 
-💀 **Defeated**
-${loserUser}
+🐉 **${enemyUser.username}**
+⚔️ Power: ${enemyPower}
 
 
 ━━━━━━━━━━━━━━
 
-🏆 Winner Rewards
+
+👑 **Winner**
+${winner.username}
+
+
+🎁 **Rewards**
 
 🪙 +150 Gold
 ⭐ +30 XP
 🏅 +5 Reputation
 
 
-💀 Loser Penalty
+🏆 W:${winner.battleWins}
+💀 L:${winner.battleLosses}
 
-🪙 -100 Gold
-⭐ -10 XP
-🏅 -2 Reputation
+❄️ WesterosBot
 `
 )
 
-
-.setFooter({
-
-text:"House Wars • WesterosBot"
-
-})
-
-.setTimestamp();
+.setColor("#8B0000");
 
 
 
@@ -238,9 +250,7 @@ text:"House Wars • WesterosBot"
 
 await interaction.reply({
 
-    content:`⚔️ ${interaction.user} challenged ${enemy}`,
-
-    embeds:[embed]
+embeds:[embed]
 
 });
 

@@ -4,199 +4,247 @@ const mongoose = require("mongoose");
 const userSchema = new mongoose.Schema({
 
 
-    // 🆔 Discord
-    userId:{
-        type:String,
-        unique:true,
-        required:true
-    },
+// 🆔 Discord
 
+userId:{
+    type:String,
+    unique:true,
+    required:true
+},
 
-    username:{
-        type:String,
-        default:"Unknown"
-    },
 
+username:{
+    type:String,
+    default:"Unknown"
+},
 
-    // 🏰 House
-    house:{
-        type:String,
-        default:"No House"
-    },
 
 
-    // 👑 Rank
-    rank:{
-        type:String,
-        default:"Peasant"
-    },
 
 
-    // 🪙 Economy
-    gold:{
-        type:Number,
-        default:100
-    },
+// 🏰 Kingdom
 
+house:{
+    type:String,
+    default:"No House"
+},
 
-    // ⭐ Level System
-    level:{
-        type:Number,
-        default:1
-    },
 
+rank:{
+    type:String,
+    default:"Peasant"
+},
 
-    xp:{
-        type:Number,
-        default:0
-    },
 
 
-    reputation:{
-        type:Number,
-        default:0
-    },
 
 
+// 🪙 Economy
 
-    // ⚔️ Combat
-    attack:{
-        type:Number,
-        default:10
-    },
+gold:{
+    type:Number,
+    default:100
+},
 
 
-    defense:{
-        type:Number,
-        default:5
-    },
+reputation:{
+    type:Number,
+    default:0
+},
 
 
-    battlePower:{
-        type:Number,
-        default:15
-    },
 
 
-    battleWins:{
-        type:Number,
-        default:0
-    },
 
+// ⭐ Level
 
-    battleLosses:{
-        type:Number,
-        default:0
-    },
+level:{
+    type:Number,
+    default:1
+},
 
 
+xp:{
+    type:Number,
+    default:0
+},
 
-    // 🐉 Dragon System
 
-    dragon:{
 
 
-        name:{
-            type:String,
-            default:"No Dragon"
-        },
 
+// ⚔️ Combat Stats
 
-        level:{
-            type:Number,
-            default:0
-        },
+attack:{
+    type:Number,
+    default:10
+},
 
 
-        power:{
-            type:Number,
-            default:0
-        },
+defense:{
+    type:Number,
+    default:5
+},
 
 
-        energy:{
-            type:Number,
-            default:100
-        },
+battlePower:{
+    type:Number,
+    default:15
+},
 
 
-        hunger:{
-            type:Number,
-            default:100
-        },
+battleWins:{
+    type:Number,
+    default:0
+},
 
 
-        alive:{
-            type:Boolean,
-            default:false
-        }
+battleLosses:{
+    type:Number,
+    default:0
+},
 
 
-    },
 
 
 
-    // 🎒 Inventory
 
-    inventory:[
+// 🐉 Dragon
 
-        {
+dragon:{
 
-            itemName:{
-                type:String
-            },
 
+name:{
+    type:String,
+    default:"No Dragon"
+},
 
-            amount:{
-                type:Number,
-                default:1
-            }
 
-        }
+level:{
+    type:Number,
+    default:0
+},
 
-    ],
 
+power:{
+    type:Number,
+    default:0
+},
 
 
-    // 🛡️ Equipment
+energy:{
+    type:Number,
+    default:100
+},
 
-    weapon:{
-        type:String,
-        default:"Wooden Sword"
-    },
 
+hunger:{
+    type:Number,
+    default:100
+},
 
-    armor:{
-        type:String,
-        default:"Leather Armor"
-    },
 
+alive:{
+    type:Boolean,
+    default:false
+}
 
 
-    // ⏳ Cooldowns
+},
 
-    lastDaily:{
-        type:Date,
-        default:null
-    },
 
 
-    lastWork:{
-        type:Date,
-        default:null
-    },
 
 
 
-    // 📅 Account
 
-    createdAt:{
-        type:Date,
-        default:Date.now
-    }
+
+// 🎒 Inventory
+
+inventory:[
+
+{
+
+itemName:{
+    type:String,
+    default:"Unknown"
+},
+
+
+amount:{
+    type:Number,
+    default:1
+}
+
+
+}
+
+],
+
+
+
+
+
+
+
+// 🛡️ Equipment
+
+
+weapon:{
+    type:String,
+    default:"Wooden Sword"
+},
+
+
+armor:{
+    type:String,
+    default:"Leather Armor"
+},
+
+
+
+
+
+
+
+// ⏳ Cooldowns
+
+
+lastDaily:{
+    type:Date,
+    default:null
+},
+
+
+lastWork:{
+    type:Date,
+    default:null
+},
+
+
+lastBattle:{
+    type:Date,
+    default:null
+},
+
+
+
+
+
+
+
+// 📅 Account
+
+createdAt:{
+    type:Date,
+    default:Date.now
+}
+
 
 
 });
+
+
 
 
 
