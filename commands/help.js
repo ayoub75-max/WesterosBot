@@ -1,9 +1,9 @@
 const {
     SlashCommandBuilder,
-    EmbedBuilder
+    EmbedBuilder,
+    ActionRowBuilder,
+    StringSelectMenuBuilder
 } = require("discord.js");
-
-const fs = require("fs");
 
 
 module.exports = {
@@ -13,125 +13,11 @@ data: new SlashCommandBuilder()
 
 .setName("help")
 
-.setDescription("📜 دليل أوامر WesterosBot"),
+.setDescription("📜 دليل WesterosBot"),
 
 
 
 async execute(interaction){
-
-
-const commands = [];
-
-
-// قراءة كل الأوامر
-
-const files = fs.readdirSync("./commands")
-.filter(file => file.endsWith(".js"));
-
-
-
-for(const file of files){
-
-
-try{
-
-
-const command = require(`./${file}`);
-
-
-if(command.data){
-
-
-commands.push({
-
-name: command.data.name,
-description: command.data.description,
-category: command.category || "Other"
-
-});
-
-
-}
-
-
-}catch(error){}
-
-
-
-}
-
-
-
-
-
-const categories = {
-
-
-"Kingdom":"🏰 Kingdom",
-
-"Economy":"🪙 Economy",
-
-"Dragons":"🐉 Dragons",
-
-"Combat":"⚔️ Combat",
-
-"Profile":"👤 Profile",
-
-"Shop":"🛒 Shop",
-
-"Admin":"👑 Admin",
-
-"Other":"📜 Other"
-
-};
-
-
-
-
-
-let text="";
-
-
-
-for(const cat in categories){
-
-
-const list = commands.filter(
-
-cmd=>cmd.category===cat
-
-);
-
-
-
-if(list.length){
-
-
-text +=
-`
-${categories[cat]}
-
-`;
-
-
-
-list.forEach(cmd=>{
-
-
-text +=
-`/${cmd.name} - ${cmd.description}
-`;
-
-
-});
-
-
-}
-
-}
-
-
-
 
 
 const embed = new EmbedBuilder()
@@ -139,18 +25,16 @@ const embed = new EmbedBuilder()
 .setTitle("🐉 WesterosBot Guide")
 
 .setDescription(
-
 `
 ⚔️ Welcome Lord **${interaction.user.username}**
 
-${text}
+📜 اختر قسم الأوامر من القائمة 👇
 
 ━━━━━━━━━━━━━━
 
+👑 Seven Kingdoms
 ❄️ Winter is Coming
-
 `
-
 )
 
 .setColor("#8B0000")
@@ -163,13 +47,76 @@ text:"WesterosBot • Seven Kingdoms"
 
 
 
+const menu = new StringSelectMenuBuilder()
+
+.setCustomId("help_menu")
+
+.setPlaceholder("📜 اختر القسم")
+
+.addOptions([
+
+{
+label:"Kingdom",
+emoji:"🏰",
+description:"البيوت والمملكة",
+value:"kingdom"
+},
+
+{
+label:"Economy",
+emoji:"🪙",
+description:"الذهب والاقتصاد",
+value:"economy"
+},
+
+{
+label:"Dragons",
+emoji:"🐉",
+description:"نظام التنانين",
+value:"dragons"
+},
+
+{
+label:"Combat",
+emoji:"⚔️",
+description:"الحروب والمعارك",
+value:"combat"
+},
+
+{
+label:"Profile",
+emoji:"👑",
+description:"ملف اللورد",
+value:"profile"
+},
+
+{
+label:"Admin",
+emoji:"🛡️",
+description:"أوامر الإدارة",
+value:"admin"
+}
+
+]);
+
+
+
+const row = new ActionRowBuilder()
+
+.addComponents(menu);
+
+
+
 await interaction.reply({
 
-embeds:[embed]
+embeds:[embed],
+
+components:[row]
 
 });
 
 
 }
+
 
 };

@@ -19,7 +19,7 @@ const User = require("./models/User");
 
 
 // =======================
-// 🌐 Render Server
+// 🌐 Render Web Server
 // =======================
 
 const app = express();
@@ -56,9 +56,8 @@ const client = new Client({
 
 
 
-
 // =======================
-// 📂 Commands Loader
+// 📂 Load Commands
 // =======================
 
 client.commands = new Collection();
@@ -72,41 +71,36 @@ fs.readdirSync("./commands")
 
 for(const file of commandFiles){
 
+    try{
 
-try{
-
-
-const command =
-require(`./commands/${file}`);
+        const command =
+        require(`./commands/${file}`);
 
 
+        if(command.data){
 
-if(command.data){
-
-
-client.commands.set(
-command.data.name,
-command
-);
+            client.commands.set(
+                command.data.name,
+                command
+            );
 
 
-console.log(`✅ Command Loaded: ${file}`);
+            console.log(
+                `✅ Command Loaded: ${file}`
+            );
+
+        }
 
 
-}
+    }catch(error){
 
+        console.log(
+            `❌ Error loading ${file}`
+        );
 
+        console.log(error);
 
-}catch(err){
-
-console.log(
-`❌ Error loading ${file}`
-);
-
-console.log(err);
-
-}
-
+    }
 
 }
 
@@ -120,7 +114,7 @@ console.log(err);
 // =======================
 
 
-client.on("interactionCreate",async interaction=>{
+client.on("interactionCreate", async interaction=>{
 
 
 
@@ -132,51 +126,49 @@ client.on("interactionCreate",async interaction=>{
 if(interaction.isChatInputCommand()){
 
 
-const command =
-client.commands.get(
-interaction.commandName
-);
+    const command =
+    client.commands.get(
+        interaction.commandName
+    );
+
+
+    if(!command) return;
 
 
 
-if(!command) return;
+    try{
 
 
-
-try{
-
-
-await command.execute(interaction);
+        await command.execute(interaction);
 
 
-}catch(error){
+    }catch(error){
 
 
-console.log(error);
+        console.log(error);
 
 
-if(!interaction.replied){
+        if(!interaction.replied){
 
 
-await interaction.reply({
+            await interaction.reply({
 
-content:"❌ Command Error",
+                content:"❌ حدث خطأ",
 
-ephemeral:true
+                ephemeral:true
 
-});
-
-
-}
+            });
 
 
-}
+        }
+
+    }
 
 
-return;
-
+    return;
 
 }
+
 
 
 
@@ -184,7 +176,7 @@ return;
 
 
 // =======================
-// 📜 HELP MENU
+// 📜 HELP SELECT MENU
 // =======================
 
 
@@ -195,82 +187,146 @@ if(interaction.isStringSelectMenu()){
 if(interaction.customId==="help_menu"){
 
 
+let text="";
 
-const pages={
 
 
-kingdom:
+switch(interaction.values[0]){
+
+
+case "kingdom":
+
+text=
 `
 🏰 **Kingdom**
 
 /choosehouse
+اختيار البيت
+
 /kingdom
-`,
+معلومات المملكة
+`;
+
+break;
 
 
-economy:
+
+
+case "economy":
+
+text=
 `
 🪙 **Economy**
 
 /balance
+عرض الذهب
+
 /daily
+المكافأة اليومية
+
 /work
+العمل
+
 /give
+إرسال الذهب
+
 /inventory
-`,
+الحقيبة
+`;
+
+break;
 
 
-dragons:
+
+
+case "dragons":
+
+text=
 `
 🐉 **Dragons**
 
 /dragon
+معلومات التنين
+
 /hatch
+فقس البيضة
+
 /feed-dragon
+إطعام التنين
+
 /train-dragon
-`,
+تدريب التنين
+`;
+
+break;
 
 
-combat:
+
+
+case "combat":
+
+text=
 `
 ⚔️ **Combat**
 
 /battle
+قتال اللوردات
+
 /leaderboard
-`,
+ترتيب اللاعبين
+`;
+
+break;
 
 
-profile:
+
+
+case "profile":
+
+text=
 `
 👑 **Profile**
 
 /profile
-`,
+بطاقة اللورد
+`;
+
+break;
 
 
-shop:
+
+
+case "admin":
+
+text=
 `
-🛒 **Shop**
+🛡️ **Admin**
+
+/admin-give
+إضافة Gold أو XP
+
+/shop-add
+إضافة منتج
 
 /shop-panel
+فتح المتجر
+`;
 
-`
+break;
 
-};
+
+}
+
 
 
 
 await interaction.reply({
 
-content:
-pages[interaction.values[0]]
-||
-"❌ Unknown Section",
+content:text,
 
 ephemeral:true
 
 });
-
 
 
 }
@@ -299,8 +355,7 @@ if(interaction.isButton()){
 let user =
 await User.findOne({
 
-userId:
-interaction.user.id
+userId:interaction.user.id
 
 });
 
@@ -312,11 +367,9 @@ if(!user){
 user =
 await User.create({
 
-userId:
-interaction.user.id,
+userId:interaction.user.id,
 
-username:
-interaction.user.username
+username:interaction.user.username
 
 });
 
@@ -326,8 +379,6 @@ interaction.user.username
 
 
 
-
-// Sword
 
 
 if(interaction.customId==="buy_sword"){
@@ -383,9 +434,6 @@ ephemeral:true
 
 
 
-// Dragon Egg
-
-
 if(interaction.customId==="buy_dragon"){
 
 
@@ -433,10 +481,8 @@ ephemeral:true
 
 
 
-// Lord Rank
-
-
 if(interaction.customId==="buy_role"){
+
 
 
 if(user.gold <5000){
@@ -478,7 +524,6 @@ ephemeral:true
 }
 
 
-
 }
 
 
@@ -492,7 +537,7 @@ ephemeral:true
 
 
 // =======================
-// 🗄️ Database + Login
+// 🗄️ MongoDB + Login
 // =======================
 
 
@@ -523,7 +568,9 @@ console.log(
 
 
 await client.login(
+
 process.env.TOKEN
+
 );
 
 
@@ -537,13 +584,16 @@ console.log(
 );
 
 
-console.log(error.message);
+console.log(
+error.message
+);
 
 
 }
 
 
 }
+
 
 
 
@@ -560,6 +610,7 @@ console.log(
 
 
 });
+
 
 
 
