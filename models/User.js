@@ -116,9 +116,7 @@ const userSchema = new mongoose.Schema({
     // 🎒 Inventory Shop Items
     inventory: [
 
-
         {
-
 
             itemName: {
 
@@ -143,9 +141,7 @@ const userSchema = new mongoose.Schema({
 
             }
 
-
         }
-
 
     ],
 
@@ -155,12 +151,9 @@ const userSchema = new mongoose.Schema({
     // 👑 Discord Roles Purchased
     purchasedRoles: [
 
-
         {
 
-
             roleId: String,
-
 
             guildId: String,
 
@@ -172,11 +165,10 @@ const userSchema = new mongoose.Schema({
 
             }
 
-
         }
 
-
     ],
+
 
 
 
@@ -197,6 +189,35 @@ const userSchema = new mongoose.Schema({
         default: 0
 
     },
+
+
+
+    // ⚔️ Combat Power
+
+    attack: {
+
+        type: Number,
+        default: 10
+
+    },
+
+
+    defense: {
+
+        type: Number,
+        default: 5
+
+    },
+
+
+    battlePower: {
+
+        type: Number,
+        default: 0
+
+    },
+
+
 
 
 
@@ -234,6 +255,7 @@ const userSchema = new mongoose.Schema({
 
 
 });
+
 
 
 
