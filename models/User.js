@@ -3,62 +3,63 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
 
+
     // 🆔 Discord
-    userId: {
-        type: String,
-        unique: true,
-        required: true
+    userId:{
+        type:String,
+        unique:true,
+        required:true
     },
 
 
-    username: {
-        type: String,
-        default: "Unknown"
+    username:{
+        type:String,
+        default:"Unknown"
     },
 
 
     // 🏰 House
-    house: {
-        type: String,
-        default: "No House"
+    house:{
+        type:String,
+        default:"No House"
+    },
+
+
+    // 👑 Rank
+    rank:{
+        type:String,
+        default:"Peasant"
     },
 
 
     // 🪙 Economy
-    gold: {
-        type: Number,
-        default: 100
+    gold:{
+        type:Number,
+        default:100
     },
 
 
-    // ⭐ Player
-    level: {
-        type: Number,
-        default: 1
+    // ⭐ Level System
+    level:{
+        type:Number,
+        default:1
     },
 
 
-    xp: {
-        type: Number,
-        default: 0
+    xp:{
+        type:Number,
+        default:0
     },
 
 
-    reputation: {
-        type: Number,
-        default: 0
-    },
-
-
-    rank: {
-        type: String,
-        default: "Peasant"
+    reputation:{
+        type:Number,
+        default:0
     },
 
 
 
     // ⚔️ Combat
-
     attack:{
         type:Number,
         default:10
@@ -73,7 +74,7 @@ const userSchema = new mongoose.Schema({
 
     battlePower:{
         type:Number,
-        default:0
+        default:15
     },
 
 
@@ -90,13 +91,10 @@ const userSchema = new mongoose.Schema({
 
 
 
-
     // 🐉 Dragon System
 
     dragon:{
 
-
-        // اسم التنين
 
         name:{
             type:String,
@@ -104,15 +102,11 @@ const userSchema = new mongoose.Schema({
         },
 
 
-        // مستوى التنين
-
         level:{
             type:Number,
             default:0
         },
 
-
-        // القوة
 
         power:{
             type:Number,
@@ -120,15 +114,11 @@ const userSchema = new mongoose.Schema({
         },
 
 
-        // هل توجد بيضة
-
-        hasEgg:{
-            type:Boolean,
-            default:false
+        energy:{
+            type:Number,
+            default:100
         },
 
-
-        // 🍖 الجوع 0-100
 
         hunger:{
             type:Number,
@@ -136,19 +126,9 @@ const userSchema = new mongoose.Schema({
         },
 
 
-        // 😴 الطاقة 0-100
-
-        energy:{
-            type:Number,
-            default:100
-        },
-
-
-        // 🐉 نوع التنين
-
-        type:{
-            type:String,
-            default:"Unknown"
+        alive:{
+            type:Boolean,
+            default:false
         }
 
 
@@ -156,66 +136,40 @@ const userSchema = new mongoose.Schema({
 
 
 
-
-
-
     // 🎒 Inventory
 
-    inventory:[{
+    inventory:[
+
+        {
+
+            itemName:{
+                type:String
+            },
 
 
-        itemName:{
-            type:String,
-            default:"Unknown"
-        },
+            amount:{
+                type:Number,
+                default:1
+            }
 
-
-        itemType:{
-            type:String,
-            default:"Item"
-        },
-
-
-        amount:{
-            type:Number,
-            default:1
-        },
-
-
-        boughtAt:{
-            type:Date,
-            default:Date.now
         }
 
-
-    }],
-
+    ],
 
 
 
+    // 🛡️ Equipment
+
+    weapon:{
+        type:String,
+        default:"Wooden Sword"
+    },
 
 
-    // 👑 Purchased Roles
-
-    purchasedRoles:[{
-
-
-        roleId:String,
-
-        guildId:String,
-
-
-        boughtAt:{
-            type:Date,
-            default:Date.now
-        }
-
-
-    }],
-
-
-
-
+    armor:{
+        type:String,
+        default:"Leather Armor"
+    },
 
 
 
@@ -230,9 +184,16 @@ const userSchema = new mongoose.Schema({
     lastWork:{
         type:Date,
         default:null
+    },
+
+
+
+    // 📅 Account
+
+    createdAt:{
+        type:Date,
+        default:Date.now
     }
-
-
 
 
 });
@@ -240,6 +201,6 @@ const userSchema = new mongoose.Schema({
 
 
 module.exports = mongoose.model(
-    "User",
-    userSchema
+"User",
+userSchema
 );

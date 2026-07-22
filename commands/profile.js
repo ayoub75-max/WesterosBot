@@ -1,124 +1,223 @@
-const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
+const {
+    SlashCommandBuilder,
+    EmbedBuilder
+} = require("discord.js");
+
 const User = require("../models/User");
+
 
 module.exports = {
 
-    data: new SlashCommandBuilder()
 
-        .setName("profile")
-        .setDescription("👑 عرض بطاقة اللورد")
+data: new SlashCommandBuilder()
 
-        .addUserOption(option =>
-            option
-            .setName("user")
-            .setDescription("عرض ملف لاعب آخر")
-            .setRequired(false)
-        ),
+.setName("profile")
 
+.setDescription("عرض بطاقة اللورد")
 
-    async execute(interaction) {
-
-
-        // اللاعب المطلوب
-        const target = 
-            interaction.options.getUser("user") 
-            || interaction.user;
+.addUserOption(option =>
+    option
+    .setName("user")
+    .setDescription("اختيار لورد آخر")
+    .setRequired(false)
+),
 
 
 
-        let user = await User.findOne({
-            userId: target.id
-        });
+async execute(interaction){
+
+
+const target =
+interaction.options.getUser("user")
+|| interaction.user;
 
 
 
-        if(!user){
-
-            user = await User.create({
-
-                userId: target.id,
-
-                username: target.username
-
-            });
-
-        }
+let user = await User.findOne({
+    userId: target.id
+});
 
 
 
-        const embed = new EmbedBuilder()
+if(!user){
 
-            .setColor("#8B0000")
+user = await User.create({
 
-            .setTitle(`👑 Lord ${target.username}`)
+    userId: target.id,
 
-            .setThumbnail(target.displayAvatarURL())
+    username: target.username
 
-            .addFields(
+});
 
-                {
-                    name:"🏰 House",
-                    value:user.house || "No House",
-                    inline:true
-                },
-
-                {
-                    name:"🪙 Gold",
-                    value:`${user.gold} Dragons`,
-                    inline:true
-                },
-
-                {
-                    name:"⭐ Level",
-                    value:`${user.level}`,
-                    inline:true
-                },
-
-                {
-                    name:"🔥 XP",
-                    value:`${user.xp}`,
-                    inline:true
-                },
-
-                {
-                    name:"🛡️ Reputation",
-                    value:`${user.reputation}`,
-                    inline:true
-                },
-
-                {
-                    name:"🐉 Dragon",
-                    value:user.dragon?.name || "No Dragon",
-                    inline:true
-                },
-
-                {
-                    name:"🔥 Dragon Power",
-                    value:`${user.dragon?.power || 0}`,
-                    inline:true
-                }
-
-            )
-
-
-            .setFooter({
-
-                text:"🐉 WesterosBot • Winter is Coming ❄️"
-
-            })
-
-
-            .setTimestamp();
+}
 
 
 
-        await interaction.reply({
-
-            embeds:[embed]
-
-        });
+const xpNeed = user.level * 100;
 
 
-    }
+const xpBarLength = 10;
+
+
+const filled = Math.floor(
+(user.xp / xpNeed) * xpBarLength
+);
+
+
+const xpBar =
+"🟩".repeat(Math.min(filled,10)) +
+"⬛".repeat(Math.max(10-filled,0));
+
+
+
+
+let dragonStatus =
+"❌ No Dragon";
+
+
+if(user.dragon?.alive){
+
+dragonStatus =
+`
+🐉 ${user.dragon.name}
+
+⭐ Level:
+${user.dragon.level}
+
+🔥 Power:
+${user.dragon.power}
+
+🍖 Hunger:
+${user.dragon.hunger}%
+
+⚡ Energy:
+${user.dragon.energy}%
+`;
+
+}
+
+
+
+
+const embed = new EmbedBuilder()
+
+
+.setAuthor({
+
+name:
+`Lord ${target.username}`,
+
+iconURL:
+target.displayAvatarURL()
+
+})
+
+
+.setTitle("👑 Westeros Lord Profile")
+
+
+.setDescription(
+
+`
+🏰 **House**
+${user.house}
+
+
+👑 **Rank**
+${user.rank}
+
+
+━━━━━━━━━━━━━━
+
+⭐ **Level**
+${user.level}
+
+
+🔥 **Experience**
+
+${xpBar}
+
+${user.xp}/${xpNeed} XP
+
+
+━━━━━━━━━━━━━━
+
+🪙 **Gold**
+${user.gold} Dragons
+
+
+⚔️ **Combat Power**
+${user.battlePower}
+
+
+🗡️ Attack:
+${user.attack}
+
+
+🛡️ Defense:
+${user.defense}
+
+
+━━━━━━━━━━━━━━
+
+🐉 **Dragon**
+
+${dragonStatus}
+
+
+━━━━━━━━━━━━━━
+
+🏆 **Battle Record**
+
+⚔️ Wins:
+${user.battleWins}
+
+💀 Losses:
+${user.battleLosses}
+
+
+━━━━━━━━━━━━━━
+
+🗡️ Weapon:
+${user.weapon}
+
+
+🛡️ Armor:
+${user.armor}
+
+
+❄️ Winter is Coming
+`
+
+)
+
+
+.setThumbnail(
+target.displayAvatarURL()
+)
+
+
+.setColor("#8B0000")
+
+
+.setFooter({
+
+text:
+"WesterosBot • Seven Kingdoms"
+
+});
+
+
+
+
+await interaction.reply({
+
+embeds:[embed]
+
+});
+
+
+}
+
 
 };

@@ -1,6 +1,9 @@
-const { 
+const {
     SlashCommandBuilder,
-    EmbedBuilder
+    EmbedBuilder,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle
 } = require("discord.js");
 
 
@@ -11,87 +14,82 @@ data: new SlashCommandBuilder()
 
 .setName("help")
 
-.setDescription("📜 قائمة أوامر WesterosBot"),
-
+.setDescription("📜 دليل أوامر WesterosBot"),
 
 
 
 async execute(interaction){
 
 
-
 const embed = new EmbedBuilder()
 
-.setTitle("🐉 WesterosBot Commands")
+.setTitle("🐉 WesterosBot Guide")
 
 .setDescription(
 `
-👑 **Seven Kingdoms Guide**
+**⚔️ Welcome Lord ${interaction.user.username}**
+
+دليل مملكة Westeros
 
 ━━━━━━━━━━━━━━
 
-🏰 **Kingdom**
+👑 **Kingdom**
+🏰 /choosehouse
+اختيار البيت
 
-/choosehouse
-اختر بيتك في Westeros
-
-/kingdom
-عرض معلومات المملكة
+🏰 /kingdom
+معلومات المملكة
 
 
 ━━━━━━━━━━━━━━
 
 🪙 **Economy**
-
-/balance
+💰 /balance
 عرض الذهب
 
-/daily
-جمع المكافأة اليومية
+🎁 /daily
+المكافأة اليومية
 
-/work
-العمل وكسب Gold
-
-
-━━━━━━━━━━━━━━
-
-🐉 **Dragon**
-
-/dragon
-عرض التنين
-
-/feed-dragon
-🍖 إطعام التنين
-
-/train-dragon
-⚔️ تدريب التنين
+⚒️ /work
+العمل وكسب الذهب
 
 
 ━━━━━━━━━━━━━━
 
-⚔️ **Battle**
+🐉 **Dragons**
+🥚 /hatch
+فقس البيضة
 
-/battle
-محاربة لورد آخر
+🐉 /dragon
+معلومات التنين
+
+🍖 /feed-dragon
+إطعام التنين
+
+⚔️ /train-dragon
+تدريب التنين
+
+
+━━━━━━━━━━━━━━
+
+⚔️ **Combat**
+⚔️ /battle
+قتال لورد آخر
 
 
 ━━━━━━━━━━━━━━
 
 🎒 **Profile**
-
-/profile
-عرض بطاقة اللورد
+👤 /profile
+بطاقة اللورد
 
 
 ━━━━━━━━━━━━━━
 
 🛒 **Shop**
+🛒 /shop-panel
+متجر المملكة
 
-/shop-panel
-فتح متجر Westeros
-
-
-━━━━━━━━━━━━━━
 
 ❄️ Winter is Coming
 `
@@ -99,20 +97,59 @@ const embed = new EmbedBuilder()
 
 .setColor("#8B0000")
 
+.setThumbnail(
+interaction.client.user.displayAvatarURL()
+)
+
 .setFooter({
 text:"WesterosBot • Seven Kingdoms"
 });
 
 
 
+const buttons = new ActionRowBuilder()
+
+.addComponents(
+
+new ButtonBuilder()
+
+.setCustomId("help_economy")
+
+.setLabel("🪙 Economy")
+
+.setStyle(ButtonStyle.Primary),
+
+
+new ButtonBuilder()
+
+.setCustomId("help_dragon")
+
+.setLabel("🐉 Dragons")
+
+.setStyle(ButtonStyle.Success),
+
+
+new ButtonBuilder()
+
+.setCustomId("help_battle")
+
+.setLabel("⚔️ Battle")
+
+.setStyle(ButtonStyle.Danger)
+
+);
+
+
+
 await interaction.reply({
 
-embeds:[embed]
+embeds:[embed],
+
+components:[buttons]
 
 });
 
 
 }
-
 
 };

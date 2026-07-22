@@ -6,6 +6,6 @@ module.exports = {
         .setDescription("اختبار البوت"),
 
     async execute(interaction) {
-        await interaction.reply("🏓 Pong!");
+        await interaction.reply("ayoub chikor");
     },
 };
