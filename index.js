@@ -1,148 +1,73 @@
-const dns = require("dns");
+// =====================
+// 🛒 Shop Buttons
+// =====================
 
-dns.setDefaultResultOrder("ipv4first");
-
-require("dotenv").config();
-
-const express = require("express");
-const mongoose = require("mongoose");
-
-const {
-    Client,
-    GatewayIntentBits,
-    Collection
-} = require("discord.js");
-
-const fs = require("fs");
+if (interaction.isButton()) {
 
 
-
-// 🌐 Render Web Server
-
-const app = express();
-
-app.get("/", (req, res) => {
-
-    res.send("🐉 WesterosBot Online");
-
-});
+    let user = await User.findOne({
+        userId: interaction.user.id
+    });
 
 
-app.listen(process.env.PORT || 3000, () => {
+    if(!user){
 
-    console.log("🌐 Web Server Started");
+        user = await User.create({
 
-});
+            userId: interaction.user.id,
 
+            username: interaction.user.username
 
-
-
-
-// 🤖 Discord Client
-
-const client = new Client({
-
-    intents: [
-        GatewayIntentBits.Guilds
-    ]
-
-});
-
-
-
-
-
-// 📂 Commands
-
-client.commands = new Collection();
-
-
-const commandFiles = fs.readdirSync("./commands")
-    .filter(file => file.endsWith(".js"));
-
-
-
-for (const file of commandFiles) {
-
-    try {
-
-        const command = require(`./commands/${file}`);
-
-
-        if (command.data) {
-
-            client.commands.set(
-                command.data.name,
-                command
-            );
-
-
-            console.log(`✅ Command Loaded: ${file}`);
-
-        }
-
-
-    } catch(error) {
-
-        console.log(`❌ Error loading ${file}`);
-        console.log(error);
+        });
 
     }
 
-}
 
 
 
+    // 🗡️ Sword
+
+    if(interaction.customId === "buy_sword"){
 
 
-// ⚔️ Slash Commands + Buttons
+        if(user.gold < 500){
 
-client.on("interactionCreate", async interaction => {
+            return interaction.reply({
 
+                content:"❌ ليس لديك Gold كافي",
 
+                ephemeral:true
 
-    // =====================
-    // Slash Commands
-    // =====================
-
-    if (interaction.isChatInputCommand()) {
-
-
-        const command = client.commands.get(
-            interaction.commandName
-        );
-
-
-        if (!command) return;
-
-
-
-        try {
-
-
-            await command.execute(interaction);
-
-
-
-        } catch(error) {
-
-
-            console.error(error);
-
-
-            if(!interaction.replied) {
-
-                await interaction.reply({
-
-                    content:"❌ حدث خطأ أثناء تنفيذ الأمر",
-
-                    ephemeral:true
-
-                });
-
-            }
+            });
 
         }
+
+
+
+        user.gold -= 500;
+
+
+        user.inventory.push({
+
+            itemName:"Valyrian Sword",
+
+            itemType:"Weapon"
+
+        });
+
+
+        await user.save();
+
+
+
+        return interaction.reply({
+
+            content:
+            "🗡️ اشتريت **Valyrian Sword**\n⚔️ تمت إضافته إلى Inventory",
+
+            ephemeral:true
+
+        });
 
 
     }
@@ -151,21 +76,18 @@ client.on("interactionCreate", async interaction => {
 
 
 
-    // =====================
-    // 🛒 Shop Buttons
-    // =====================
+    // 🐉 Dragon Egg
 
-    if (interaction.isButton()) {
+    if(interaction.customId === "buy_dragon"){
 
 
 
-        if(interaction.customId === "buy_sword") {
+        if(user.gold < 1000){
 
 
-            await interaction.reply({
+            return interaction.reply({
 
-                content:
-                "🗡️ اشتريت **Valyrian Sword** مقابل 500 🪙 Gold",
+                content:"❌ ليس لديك Gold كافي",
 
                 ephemeral:true
 
@@ -176,14 +98,45 @@ client.on("interactionCreate", async interaction => {
 
 
 
+        user.gold -= 1000;
 
-        if(interaction.customId === "buy_dragon") {
+
+        user.dragon.hasEgg = true;
 
 
-            await interaction.reply({
+        await user.save();
 
-                content:
-                "🐉 اشتريت **Dragon Egg** مقابل 1000 🪙 Gold",
+
+
+        return interaction.reply({
+
+            content:
+            "🐉 حصلت على **Dragon Egg**",
+
+            ephemeral:true
+
+        });
+
+
+
+    }
+
+
+
+
+
+    // 👑 Lord Rank
+
+    if(interaction.customId === "buy_role"){
+
+
+
+        if(user.gold < 5000){
+
+
+            return interaction.reply({
+
+                content:"❌ ليس لديك Gold كافي",
 
                 ephemeral:true
 
@@ -194,97 +147,28 @@ client.on("interactionCreate", async interaction => {
 
 
 
-
-        if(interaction.customId === "buy_role") {
-
-
-            await interaction.reply({
-
-                content:
-                "👑 حصلت على **Lord Rank** مقابل 5000 🪙 Gold",
-
-                ephemeral:true
-
-            });
+        user.gold -= 5000;
 
 
-        }
+        user.rank = "Lord";
+
+
+        await user.save();
 
 
 
-    }
+        return interaction.reply({
 
+            content:
+            "👑 أصبحت الآن **Lord of Westeros**",
 
+            ephemeral:true
 
-});
-
-
-
-
-
-
-
-// 🗄️ MongoDB + Login
-
-async function startBot() {
-
-
-    try {
-
-
-        await mongoose.connect(
-
-            process.env.MONGO_URI,
-
-            {
-                serverSelectionTimeoutMS:10000
-            }
-
-        );
-
-
-        console.log("🗄️ MongoDB Connected");
-
-
-
-        await client.login(
-
-            process.env.TOKEN
-
-        );
-
-
-
-    } catch(err) {
-
-
-        console.log("❌ Error:");
-        console.log(err.message);
+        });
 
 
     }
+
 
 
 }
-
-
-
-
-
-client.once("clientReady", () => {
-
-
-    console.log(
-
-        `🤖 WesterosBot Online as ${client.user.tag}`
-
-    );
-
-
-});
-
-
-
-
-
-startBot();
