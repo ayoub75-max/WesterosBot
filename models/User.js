@@ -3,109 +3,152 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
 
-
-    // 🆔 Discord ID
+    // 🆔 Discord
     userId: {
-
         type: String,
         unique: true,
         required: true
-
     },
 
 
     username: {
-
         type: String,
         default: "Unknown"
-
     },
-
 
 
     // 🏰 House
     house: {
-
         type: String,
         default: "No House"
-
     },
 
 
-
-    // 🪙 Gold
+    // 🪙 Economy
     gold: {
-
         type: Number,
         default: 100
-
     },
 
 
-
-    // ⭐ Player Level
+    // ⭐ Player
     level: {
-
         type: Number,
         default: 1
-
     },
 
 
-
-    // ✨ XP
     xp: {
-
         type: Number,
         default: 0
-
     },
 
 
-
-    // 🏅 Reputation
     reputation: {
-
         type: Number,
         default: 0
-
     },
+
+
+    rank: {
+        type: String,
+        default: "Peasant"
+    },
+
+
+
+    // ⚔️ Combat
+
+    attack:{
+        type:Number,
+        default:10
+    },
+
+
+    defense:{
+        type:Number,
+        default:5
+    },
+
+
+    battlePower:{
+        type:Number,
+        default:0
+    },
+
+
+    battleWins:{
+        type:Number,
+        default:0
+    },
+
+
+    battleLosses:{
+        type:Number,
+        default:0
+    },
+
 
 
 
     // 🐉 Dragon System
-    dragon: {
+
+    dragon:{
 
 
-        name: {
+        // اسم التنين
 
-            type: String,
-            default: "No Dragon"
-
+        name:{
+            type:String,
+            default:"No Dragon"
         },
 
 
-        power: {
+        // مستوى التنين
 
-            type: Number,
-            default: 0
-
+        level:{
+            type:Number,
+            default:0
         },
 
 
-        level: {
+        // القوة
 
-            type: Number,
-            default: 0
-
+        power:{
+            type:Number,
+            default:0
         },
 
 
-        hasEgg: {
+        // هل توجد بيضة
 
-            type: Boolean,
-            default: false
+        hasEgg:{
+            type:Boolean,
+            default:false
+        },
 
+
+        // 🍖 الجوع 0-100
+
+        hunger:{
+            type:Number,
+            default:100
+        },
+
+
+        // 😴 الطاقة 0-100
+
+        energy:{
+            type:Number,
+            default:100
+        },
+
+
+        // 🐉 نوع التنين
+
+        type:{
+            type:String,
+            default:"Unknown"
         }
 
 
@@ -113,149 +156,86 @@ const userSchema = new mongoose.Schema({
 
 
 
-    // 🎒 Inventory Shop Items
-    inventory: [
-
-        {
-
-            itemName: {
-
-                type: String,
-                default: "Unknown"
-
-            },
 
 
-            itemType: {
 
-                type: String,
-                default: "Item"
+    // 🎒 Inventory
 
-            },
+    inventory:[{
 
 
-            boughtAt: {
+        itemName:{
+            type:String,
+            default:"Unknown"
+        },
 
-                type: Date,
-                default: Date.now
 
-            }
+        itemType:{
+            type:String,
+            default:"Item"
+        },
 
+
+        amount:{
+            type:Number,
+            default:1
+        },
+
+
+        boughtAt:{
+            type:Date,
+            default:Date.now
         }
 
-    ],
+
+    }],
 
 
 
 
-    // 👑 Discord Roles Purchased
-    purchasedRoles: [
-
-        {
-
-            roleId: String,
-
-            guildId: String,
 
 
-            boughtAt: {
+    // 👑 Purchased Roles
 
-                type: Date,
-                default: Date.now
+    purchasedRoles:[{
 
-            }
 
+        roleId:String,
+
+        guildId:String,
+
+
+        boughtAt:{
+            type:Date,
+            default:Date.now
         }
 
-    ],
+
+    }],
 
 
 
 
 
-    // ⚔️ Battle System
 
-    battleWins: {
 
-        type: Number,
-        default: 0
+    // ⏳ Cooldowns
 
+    lastDaily:{
+        type:Date,
+        default:null
     },
 
 
-    battleLosses: {
-
-        type: Number,
-        default: 0
-
-    },
-
-
-
-    // ⚔️ Combat Power
-
-    attack: {
-
-        type: Number,
-        default: 10
-
-    },
-
-
-    defense: {
-
-        type: Number,
-        default: 5
-
-    },
-
-
-    battlePower: {
-
-        type: Number,
-        default: 0
-
-    },
-
-
-
-
-
-    // 🏰 Kingdom Rank
-
-    rank: {
-
-        type: String,
-        default: "Peasant"
-
-    },
-
-
-
-    // ⏳ Daily Cooldown
-
-    lastDaily: {
-
-        type: Date,
-        default: null
-
-    },
-
-
-
-    // ⏳ Work Cooldown
-
-    lastWork: {
-
-        type: Date,
-        default: null
-
+    lastWork:{
+        type:Date,
+        default:null
     }
 
 
 
-});
 
+});
 
 
 
