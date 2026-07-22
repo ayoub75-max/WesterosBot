@@ -1,9 +1,9 @@
 const {
     SlashCommandBuilder,
-    EmbedBuilder,
-    ActionRowBuilder,
-    StringSelectMenuBuilder
+    EmbedBuilder
 } = require("discord.js");
+
+const fs = require("fs");
 
 
 module.exports = {
@@ -20,107 +20,152 @@ data: new SlashCommandBuilder()
 async execute(interaction){
 
 
+const commands = [];
+
+
+// قراءة كل الأوامر
+
+const files = fs.readdirSync("./commands")
+.filter(file => file.endsWith(".js"));
+
+
+
+for(const file of files){
+
+
+try{
+
+
+const command = require(`./${file}`);
+
+
+if(command.data){
+
+
+commands.push({
+
+name: command.data.name,
+description: command.data.description,
+category: command.category || "Other"
+
+});
+
+
+}
+
+
+}catch(error){}
+
+
+
+}
+
+
+
+
+
+const categories = {
+
+
+"Kingdom":"🏰 Kingdom",
+
+"Economy":"🪙 Economy",
+
+"Dragons":"🐉 Dragons",
+
+"Combat":"⚔️ Combat",
+
+"Profile":"👤 Profile",
+
+"Shop":"🛒 Shop",
+
+"Admin":"👑 Admin",
+
+"Other":"📜 Other"
+
+};
+
+
+
+
+
+let text="";
+
+
+
+for(const cat in categories){
+
+
+const list = commands.filter(
+
+cmd=>cmd.category===cat
+
+);
+
+
+
+if(list.length){
+
+
+text +=
+`
+${categories[cat]}
+
+`;
+
+
+
+list.forEach(cmd=>{
+
+
+text +=
+`/${cmd.name} - ${cmd.description}
+`;
+
+
+});
+
+
+}
+
+}
+
+
+
+
+
 const embed = new EmbedBuilder()
 
 .setTitle("🐉 WesterosBot Guide")
 
 .setDescription(
+
 `
 ⚔️ Welcome Lord **${interaction.user.username}**
 
-اختر قسم الأوامر من القائمة 👇
+${text}
 
 ━━━━━━━━━━━━━━
 
-👑 Seven Kingdoms
 ❄️ Winter is Coming
+
 `
+
 )
 
 .setColor("#8B0000")
 
-.setThumbnail(
-interaction.client.user.displayAvatarURL()
-)
-
 .setFooter({
+
 text:"WesterosBot • Seven Kingdoms"
+
 });
-
-
-
-const menu = new StringSelectMenuBuilder()
-
-.setCustomId("help_menu")
-
-.setPlaceholder("📜 اختر قسم الأوامر")
-
-.addOptions([
-
-
-{
-label:"Kingdom",
-description:"🏰 البيوت والمملكة",
-emoji:"🏰",
-value:"kingdom"
-},
-
-
-{
-label:"Economy",
-description:"🪙 الذهب والعمل",
-emoji:"🪙",
-value:"economy"
-},
-
-
-{
-label:"Dragons",
-description:"🐉 نظام التنانين",
-emoji:"🐉",
-value:"dragons"
-},
-
-
-{
-label:"Combat",
-description:"⚔️ القتال والترتيب",
-emoji:"⚔️",
-value:"combat"
-},
-
-
-{
-label:"Profile",
-description:"👤 بطاقة اللورد",
-emoji:"🎒",
-value:"profile"
-},
-
-
-{
-label:"Shop",
-description:"🛒 المتجر",
-emoji:"🛒",
-value:"shop"
-}
-
-
-]);
-
-
-
-const row = new ActionRowBuilder()
-
-.addComponents(menu);
 
 
 
 await interaction.reply({
 
-embeds:[embed],
-
-components:[row]
+embeds:[embed]
 
 });
 
