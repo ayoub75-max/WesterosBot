@@ -14,6 +14,8 @@ const {
 
 const fs = require("fs");
 
+const User = require("./models/User");
+
 
 // =======================
 // 🌐 Render Server
@@ -22,12 +24,16 @@ const fs = require("fs");
 const app = express();
 
 app.get("/", (req, res) => {
+
     res.send("🐉 WesterosBot Online");
+
 });
 
 
 app.listen(process.env.PORT || 3000, () => {
+
     console.log("🌐 Web Server Started");
+
 });
 
 
@@ -39,7 +45,7 @@ app.listen(process.env.PORT || 3000, () => {
 
 const client = new Client({
 
-    intents: [
+    intents:[
         GatewayIntentBits.Guilds
     ]
 
@@ -61,9 +67,9 @@ const commandFiles = fs.readdirSync("./commands")
 
 
 
-for (const file of commandFiles) {
+for(const file of commandFiles){
 
-    try {
+    try{
 
         const command = require(`./commands/${file}`);
 
@@ -75,14 +81,15 @@ for (const file of commandFiles) {
                 command
             );
 
+
             console.log(`✅ Command Loaded: ${file}`);
 
         }
 
 
-    } catch(error){
+    }catch(error){
 
-        console.log(`❌ Error ${file}`);
+        console.log(`❌ Error loading ${file}`);
         console.log(error);
 
     }
@@ -99,12 +106,14 @@ for (const file of commandFiles) {
 // ⚔️ Commands + Buttons
 // =======================
 
-
 client.on("interactionCreate", async interaction => {
 
 
 
+    // ===================
     // Slash Commands
+    // ===================
+
 
     if(interaction.isChatInputCommand()){
 
@@ -133,6 +142,7 @@ client.on("interactionCreate", async interaction => {
 
             if(!interaction.replied){
 
+
                 await interaction.reply({
 
                     content:"❌ Command Error",
@@ -141,7 +151,9 @@ client.on("interactionCreate", async interaction => {
 
                 });
 
+
             }
+
 
         }
 
@@ -153,65 +165,186 @@ client.on("interactionCreate", async interaction => {
 
 
 
-    // =======================
-    // 🛒 SHOP BUTTONS
-    // =======================
+
+    // ===================
+    // 🛒 SHOP SYSTEM
+    // ===================
 
 
     if(interaction.isButton()){
 
 
-        console.log(
-            "Button:",
-            interaction.customId
-        );
+        let user = await User.findOne({
+
+            userId: interaction.user.id
+
+        });
 
 
+
+        if(!user){
+
+
+            user = await User.create({
+
+                userId: interaction.user.id,
+
+                username: interaction.user.username
+
+            });
+
+
+        }
+
+
+
+
+
+        // 🗡️ Sword
 
         if(interaction.customId === "buy_sword"){
 
 
-            await interaction.reply({
+
+            if(user.gold < 500){
+
+
+                return interaction.reply({
+
+                    content:"❌ تحتاج 500 Gold",
+
+                    ephemeral:true
+
+                });
+
+
+            }
+
+
+
+            user.gold -= 500;
+
+
+
+            user.inventory.push({
+
+                itemName:"Valyrian Sword",
+
+                itemType:"Weapon"
+
+            });
+
+
+
+            await user.save();
+
+
+
+            return interaction.reply({
 
                 content:
-                "🗡️ تم شراء **Valyrian Sword**\n⚔️ Attack +10",
+                "🗡️ اشتريت **Valyrian Sword**\n⚔️ Attack +10",
 
                 ephemeral:true
 
             });
 
 
-            return;
 
         }
 
 
 
+
+
+
+
+        // 🐉 Dragon Egg
 
         if(interaction.customId === "buy_dragon"){
 
 
-            await interaction.reply({
+
+            if(user.gold < 1000){
+
+
+                return interaction.reply({
+
+                    content:"❌ تحتاج 1000 Gold",
+
+                    ephemeral:true
+
+                });
+
+
+            }
+
+
+
+            user.gold -= 1000;
+
+
+            user.dragon.hasEgg = true;
+
+
+
+            await user.save();
+
+
+
+            return interaction.reply({
 
                 content:
-                "🐉 تم شراء **Dragon Egg**",
+                "🐉 حصلت على **Dragon Egg**",
 
                 ephemeral:true
 
             });
 
 
-            return;
 
         }
 
 
 
 
+
+
+
+        // 👑 Lord Rank
+
         if(interaction.customId === "buy_role"){
 
 
-            await interaction.reply({
+
+            if(user.gold < 5000){
+
+
+                return interaction.reply({
+
+                    content:"❌ تحتاج 5000 Gold",
+
+                    ephemeral:true
+
+                });
+
+
+            }
+
+
+
+            user.gold -= 5000;
+
+
+            user.rank = "Lord";
+
+
+
+            await user.save();
+
+
+
+            return interaction.reply({
 
                 content:
                 "👑 أصبحت **Lord of Westeros**",
@@ -220,8 +353,6 @@ client.on("interactionCreate", async interaction => {
 
             });
 
-
-            return;
 
         }
 
@@ -241,9 +372,8 @@ client.on("interactionCreate", async interaction => {
 
 
 // =======================
-// 🗄️ Database + Login
+// 🗄️ MongoDB + Login
 // =======================
-
 
 async function startBot(){
 
@@ -262,6 +392,7 @@ async function startBot(){
         );
 
 
+
         console.log("🗄️ MongoDB Connected");
 
 
@@ -278,6 +409,7 @@ async function startBot(){
 
 
         console.log("❌ Error:");
+
         console.log(error.message);
 
 
@@ -285,6 +417,7 @@ async function startBot(){
 
 
 }
+
 
 
 
